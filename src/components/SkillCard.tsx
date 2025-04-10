@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardFooter, CardHeader } from './ui/card';
 import { Avatar } from './ui/avatar';
 import { BookOpen, MessageSquare, ThumbsUp } from 'lucide-react';
 import { Badge } from './ui/badge';
+import { toast } from "sonner";
 
 interface SkillCardProps {
   id: string;
@@ -27,10 +28,32 @@ const SkillCard: React.FC<SkillCardProps> = ({
   category,
   authorName,
   authorAvatar,
-  likesCount,
+  likesCount: initialLikesCount,
   commentsCount,
   lessonsCount,
 }) => {
+  const [likesCount, setLikesCount] = useState(initialLikesCount);
+  const [isLiked, setIsLiked] = useState(false);
+
+  const handleLikeClick = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent navigation
+    
+    if (isLiked) {
+      setLikesCount(prev => prev - 1);
+      setIsLiked(false);
+      toast.info("Like removed");
+    } else {
+      setLikesCount(prev => prev + 1);
+      setIsLiked(true);
+      toast.success("Skill liked!");
+    }
+  };
+
+  const handleCommentClick = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent navigation
+    toast.info("Comments feature coming soon!");
+  };
+
   return (
     <Link to={`/skills/${id}`}>
       <Card className="skill-card h-full hover:shadow-md transition-all duration-300">
@@ -58,11 +81,17 @@ const SkillCard: React.FC<SkillCardProps> = ({
               <BookOpen className="h-4 w-4" />
               <span className="text-xs">{lessonsCount}</span>
             </div>
-            <div className="flex items-center space-x-1">
+            <div 
+              className={`flex items-center space-x-1 cursor-pointer ${isLiked ? 'text-primary' : ''}`} 
+              onClick={handleLikeClick}
+            >
               <ThumbsUp className="h-4 w-4" />
               <span className="text-xs">{likesCount}</span>
             </div>
-            <div className="flex items-center space-x-1">
+            <div 
+              className="flex items-center space-x-1 cursor-pointer" 
+              onClick={handleCommentClick}
+            >
               <MessageSquare className="h-4 w-4" />
               <span className="text-xs">{commentsCount}</span>
             </div>

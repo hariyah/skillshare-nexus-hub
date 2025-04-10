@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { toast } from "sonner";
 import { 
   BookOpen, 
   ThumbsUp, 
@@ -24,6 +25,8 @@ const SkillDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [skill, setSkill] = useState<Skill | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
 
   useEffect(() => {
     // Simulate API fetch
@@ -32,12 +35,40 @@ const SkillDetail = () => {
       setTimeout(() => {
         const foundSkill = skillsData.find(s => s.id === id);
         setSkill(foundSkill || null);
+        if (foundSkill) {
+          setLikesCount(foundSkill.stats.likes);
+        }
         setLoading(false);
       }, 500);
     };
 
     fetchSkill();
   }, [id]);
+
+  const handleLikeClick = () => {
+    if (isLiked) {
+      setLikesCount(prev => prev - 1);
+      setIsLiked(false);
+      toast.info("Like removed");
+    } else {
+      setLikesCount(prev => prev + 1);
+      setIsLiked(true);
+      toast.success("Skill liked!");
+    }
+  };
+
+  const handleCommentClick = () => {
+    toast.info("Comments feature coming soon!");
+  };
+
+  const handleBookmarkClick = () => {
+    toast.success("Skill saved to your bookmarks!");
+  };
+
+  const handleShareClick = () => {
+    navigator.clipboard.writeText(window.location.href);
+    toast.success("Link copied to clipboard!");
+  };
 
   if (loading) {
     return (
@@ -102,11 +133,17 @@ const SkillDetail = () => {
                   <BookOpen className="h-4 w-4" />
                   <span>{skill.stats.lessons} lessons</span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div 
+                  className={`flex items-center gap-2 cursor-pointer ${isLiked ? 'text-primary' : ''}`}
+                  onClick={handleLikeClick}
+                >
                   <ThumbsUp className="h-4 w-4" />
-                  <span>{skill.stats.likes} likes</span>
+                  <span>{likesCount} likes</span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div 
+                  className="flex items-center gap-2 cursor-pointer"
+                  onClick={handleCommentClick}
+                >
                   <MessageSquare className="h-4 w-4" />
                   <span>{skill.stats.comments} comments</span>
                 </div>
@@ -229,11 +266,19 @@ const SkillDetail = () => {
                 
                 <div className="space-y-4">
                   <Button className="w-full">Enroll in this Skill</Button>
-                  <Button variant="outline" className="w-full flex items-center justify-center gap-2">
+                  <Button 
+                    variant="outline" 
+                    className="w-full flex items-center justify-center gap-2"
+                    onClick={handleBookmarkClick}
+                  >
                     <Bookmark className="h-4 w-4" />
                     Save for Later
                   </Button>
-                  <Button variant="outline" className="w-full flex items-center justify-center gap-2">
+                  <Button 
+                    variant="outline" 
+                    className="w-full flex items-center justify-center gap-2"
+                    onClick={handleShareClick}
+                  >
                     <Share2 className="h-4 w-4" />
                     Share
                   </Button>
